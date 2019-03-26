@@ -3,7 +3,9 @@
 #include <conio.h>
 #include <list>
 using namespace std;
-
+// int lastX, latY;
+// int getLatX(void){return x;}
+// int getLastY(void){return y;}
 #define W 119
 #define S 115
 #define A 97
@@ -40,9 +42,15 @@ public:
 	int X(void){return x;}
 	int Y(void){return y;}
 	int xDest, yDest;
-	void move(void);
+	void move(int gotoX, int gotoY);
 };
-
+void Body::move(int gotoX, int gotoY){
+	gotoxy(x,y);printf(" ");
+	x = gotoX;
+	y = gotoY;
+	gotoxy(x,y);printf("%c", 254);
+	return;
+}
 class Head{
 private:
 	int x, y;
@@ -67,6 +75,7 @@ public:
 
 void Head::move(int key){
 	gotoxy(x,y);printf(" ");
+	int lastX = x, lastY = y;
 	switch(key){
 		case W:dx=0;dy=-1;face=30;break;
 		case S:dx=0;dy=1;face=31;break;
@@ -76,6 +85,11 @@ void Head::move(int key){
 		    x += dx;
 		    y += dy; 
 		break;
+	}
+	for(tailIterator=tail.begin();tailIterator != tail.end();tailIterator ++){
+		(*tailIterator)->move(lastX, lastY);
+		lastX = (*tailIterator)->X();
+		lastY = (*tailIterator)->Y();
 	}
 	Head::collition();
 	gotoxy(x,y);printf("%c",face);
@@ -113,7 +127,8 @@ int main(int nArgs, char* argv[]){
 	while(!snake.death){
 		snake.keyMove();
 		if((snake.X() == points.X()) && (snake.Y() == points.Y())){
-			points.reload(rand()%75+4, rand()%18+4);
+			points.reload(points.X()+1,points.Y());
+			snake.tail.push_back(new Body(0,0));
 		}
 		Sleep(100);
 	}
