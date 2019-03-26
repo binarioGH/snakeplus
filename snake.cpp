@@ -41,10 +41,14 @@ public:
 	~Body(void){}
 	int X(void){return x;}
 	int Y(void){return y;}
-	int xDest, yDest;
+	int lastX, lastY;
+	int getLastX(void){return lastX;}
+	int getLastY(void){return lastY;}
 	void move(int gotoX, int gotoY);
 };
 void Body::move(int gotoX, int gotoY){
+	lastX = x;
+	lastY = y;
 	gotoxy(x,y);printf(" ");
 	x = gotoX;
 	y = gotoY;
@@ -76,21 +80,21 @@ public:
 void Head::move(int key){
 	gotoxy(x,y);printf(" ");
 	int lastX = x, lastY = y;
+	for(tailIterator=tail.begin();tailIterator != tail.end();tailIterator ++){
+		(*tailIterator)->move(lastX, lastY);
+		lastX = (*tailIterator)->getLastX();
+		lastY = (*tailIterator)->getLastY();
+	}	
 	switch(key){
 		case W:dx=0;dy=-1;face=30;break;
 		case S:dx=0;dy=1;face=31;break;
 		case A:dx=-1;dy=0;face=17;break;
 		case D:dx=1;dy=0;face=16;break;
-		default:
-		    x += dx;
-		    y += dy; 
 		break;
 	}
-	for(tailIterator=tail.begin();tailIterator != tail.end();tailIterator ++){
-		(*tailIterator)->move(lastX, lastY);
-		lastX = (*tailIterator)->X();
-		lastY = (*tailIterator)->Y();
-	}
+	x += dx;
+	y += dy; 
+	
 	Head::collition();
 	gotoxy(x,y);printf("%c",face);
 	return;
@@ -127,7 +131,7 @@ int main(int nArgs, char* argv[]){
 	while(!snake.death){
 		snake.keyMove();
 		if((snake.X() == points.X()) && (snake.Y() == points.Y())){
-			points.reload(points.X()+1,points.Y());
+			points.reload(rand()%75+4, rand()%17+4);
 			snake.tail.push_back(new Body(0,0));
 		}
 		Sleep(100);
