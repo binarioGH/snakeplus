@@ -10,7 +10,7 @@ using namespace std;
 #define S 115
 #define A 97
 #define D 100
-
+void cls(void);
 void gotoxy(int x, int y);
 void hidecursor(void);
 void drawBorders(int bx, int by);
@@ -62,6 +62,7 @@ private:
 	int face = 17;
 	void collition(void);
 	
+	
 public:
 	Head(int _x, int _y){
 		x = _x;
@@ -73,6 +74,7 @@ public:
 	bool death = false;
 	int X(void){return x;}
 	int Y(void){return y;}
+	void deathAnimation(void);
 	list<Body*> tail;
 	list<Body*>::iterator tailIterator;
 };
@@ -121,6 +123,24 @@ void Head::collition(void){
 	}
 	return;
 }
+void Head::deathAnimation(void){
+	int bombcoordX=0, bombcoordY=0;
+	int deathChar = 42;
+	int animeloop = 0;
+	for(animeloop;animeloop<=1;animeloop++){
+		gotoxy(x,y);printf("%c",deathChar);
+		Sleep(50);
+		for(tailIterator=tail.begin();tailIterator!=tail.end();tailIterator++){
+			bombcoordX = (*tailIterator)->X();
+			bombcoordY = (*tailIterator)->Y();
+			gotoxy(bombcoordX, bombcoordY);printf("%c", deathChar);
+			Sleep(50);
+		}
+		deathChar = 32;
+	}
+	return;
+	
+}
 
 int main(int nArgs, char* argv[]){
 	system("cls");
@@ -128,14 +148,25 @@ int main(int nArgs, char* argv[]){
 	drawBorders(219, 219);
 	Head snake (40,12);
 	Food points (rand()%75+4, rand()%17+4);
+	int score = 0;
 	while(!snake.death){
 		snake.keyMove();
 		if((snake.X() == points.X()) && (snake.Y() == points.Y())){
 			points.reload(rand()%75+4, rand()%17+4);
 			snake.tail.push_back(new Body(0,0));
+			gotoxy(35,1);printf("                ");
+			score++;
+			gotoxy(36,0);printf("Points: %i", score); 
 		}
 		Sleep(100);
 	}
+	snake.deathAnimation();
+	cls();
+	drawBorders(219, 219);
+	gotoxy(33,12);printf("G A M E  O V E R");
+	Sleep(3000);
+	cls();
+	gotoxy(0,0);
 
 	return 0;
 }
@@ -173,6 +204,15 @@ void drawBorders(int bx, int by){
 		gotoxy(x,y);printf("%c", by);
 		x=78;
 		gotoxy(x,y);printf("%c", by);
+	}
+	return;
+}
+void cls(void){
+	int x, y;
+	for(y=0;y<25;y++){
+		for(x=0;x<80;x++){
+			gotoxy(x,y);printf(" ");
+		}
 	}
 	return;
 }
