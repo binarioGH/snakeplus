@@ -15,6 +15,28 @@ void gotoxy(int x, int y);
 void hidecursor(void);
 void drawBorders(int bx, int by);
 
+class Obstacle{
+private:
+	int x, y;
+public:
+	Obstacle(int _x, int _y){
+		x = _x;
+		y = _y;
+	}
+	~Obstacle(void){
+		x=0;
+		y=0;
+	}
+	void reload(int _x, int _y){
+		gotoxy(x,y);printf(" ");
+		x = _x;
+		y = _y;
+		gotoxy(x,y);printf("%c",37);
+	}
+	int X(void){return x;}
+	int Y(void){return y;}
+};
+
 class Food{
 private:
 	int x,y;
@@ -124,6 +146,7 @@ void Head::collition(void){
 	return;
 }
 void Head::deathAnimation(void){
+	death = true;
 	int bombcoordX=0, bombcoordY=0;
 	int deathChar = 42;
 	int animeloop = 0;
@@ -135,6 +158,10 @@ void Head::deathAnimation(void){
 			bombcoordY = (*tailIterator)->Y();
 			gotoxy(bombcoordX, bombcoordY);printf("%c", deathChar);
 			Sleep(50);
+			if(deathChar = 32){
+				delete(*tailIterator);
+				tailIterator = tail.erase(tailIterator);
+			}
 		}
 		deathChar = 32;
 	}
@@ -148,6 +175,7 @@ int main(int nArgs, char* argv[]){
 	drawBorders(219, 219);
 	Head snake (40,12);
 	Food points (rand()%75+4, rand()%17+4);
+	Obstacle wall (rand()%75+4, rand()%17+4);
 	int score = 0;
 	while(!snake.death){
 		snake.keyMove();
@@ -157,10 +185,20 @@ int main(int nArgs, char* argv[]){
 			gotoxy(35,1);printf("                ");
 			score++;
 			gotoxy(36,0);printf("Points: %i", score); 
+			wall.reload(rand()%75+4, rand()%17+4);
+		}
+		if(snake.X() == wall.X() && snake.Y() == wall.Y()){
+			snake.death = true;
+		}
+		if(wall.X() == points.X() && wall.Y() == points.Y()){
+			wall.reload(rand()%75+4, rand()%17+4);
 		}
 		Sleep(100);
 	}
 	snake.deathAnimation();
+	delete &snake;
+	delete &points;
+	delete &wall;
 	cls();
 	drawBorders(219, 219);
 	gotoxy(33,12);printf("G A M E  O V E R");
